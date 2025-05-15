@@ -43,6 +43,6 @@ export const getVideos = async (): Promise<getVideosResponse> => {
 };
 
 export const runPrompt = async (data: runPromptRequest): Promise<runPromptResponse> => {
-  const response = await api.post<runPromptResponse>('/api/prompts', data);
+  const response = await api.post<runPromptResponse>('/api/prompts/run_prompt', data);
   return response.data;
 };
