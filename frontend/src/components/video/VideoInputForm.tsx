@@ -8,8 +8,7 @@ import { runPrompt, type runPromptResponse } from '@/services/api';
 
 const videoInputSchema = z.object({
   videoUrl: z.string().url('Please enter a valid YouTube URL'),
-  systemPrompt: z.string().min(1, 'System prompt is required'),
-  userPrompt: z.string().min(1, 'User prompt is required'),
+  prompt: z.string().min(1, 'Prompt is required'),
 });
 
 type VideoInputFormData = z.infer<typeof videoInputSchema>;
@@ -33,10 +32,7 @@ export default function VideoInputForm() {
     try {
       const response = await runPrompt({
         videoUrl: data.videoUrl,
-        prompt: {
-          systemPrompt: data.systemPrompt,
-          userPrompt: data.userPrompt,
-        },
+        prompt: data.prompt,
       });
       setResponse(response);
     } catch (error) {
@@ -72,40 +68,20 @@ export default function VideoInputForm() {
 
         <div>
           <label
-            htmlFor="systemPrompt"
+            htmlFor="prompt"
             className="block text-sm font-medium text-gray-700"
           >
-            System Prompt
+            Prompt
           </label>
           <div className="mt-1">
             <textarea
-              id="systemPrompt"
-              className="input-primary min-h-[100px]"
-              placeholder="Enter the system prompt..."
-              {...register('systemPrompt')}
+              id="prompt"
+              className="input-primary min-h-[200px]"
+              placeholder="Enter your prompt..."
+              {...register('prompt')}
             />
-            {errors.systemPrompt && (
-              <p className="mt-1 text-sm text-red-600">{errors.systemPrompt.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="userPrompt"
-            className="block text-sm font-medium text-gray-700"
-          >
-            User Prompt
-          </label>
-          <div className="mt-1">
-            <textarea
-              id="userPrompt"
-              className="input-primary min-h-[100px]"
-              placeholder="Enter the user prompt..."
-              {...register('userPrompt')}
-            />
-            {errors.userPrompt && (
-              <p className="mt-1 text-sm text-red-600">{errors.userPrompt.message}</p>
+            {errors.prompt && (
+              <p className="mt-1 text-sm text-red-600">{errors.prompt.message}</p>
             )}
           </div>
         </div>

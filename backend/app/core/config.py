@@ -18,6 +18,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
     
     # Database
+    DATABASE_URL: str | None = None
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
@@ -28,6 +29,8 @@ class Settings(BaseSettings):
     def assemble_db_connection(cls, v: str | None, values: dict[str, any]) -> any:
         if isinstance(v, str):
             return v
+        if values.get("DATABASE_URL"):
+            return values.get("DATABASE_URL")
         return f"postgresql://{values.get('POSTGRES_USER')}:{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_SERVER')}/{values.get('POSTGRES_DB')}"
     
     # LLM Configuration

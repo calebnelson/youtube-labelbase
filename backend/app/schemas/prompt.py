@@ -5,8 +5,7 @@ from datetime import datetime
 # Schema for database model
 class PromptBase(BaseModel):
     video_id: str
-    system_prompt: str
-    user_prompt: str
+    prompt: str
     output: Optional[Dict[str, Any]] = None
 
 class PromptCreate(PromptBase):
@@ -27,10 +26,6 @@ class Prompt(PromptInDBBase):
     pass
 
 # Schema for frontend request
-class PromptRequest(BaseModel):
-    systemPrompt: str
-    userPrompt: str
-
 class RunPromptRequest(BaseModel):
     videoUrl: str
-    prompt: PromptRequest 
+    prompt: str 

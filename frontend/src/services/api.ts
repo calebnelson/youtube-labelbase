@@ -20,11 +20,7 @@ export interface getVideosResponse {
 
 export interface runPromptRequest {
   videoUrl: string;
-  prompt: {
-    id?: number;
-    systemPrompt: string;
-    userPrompt: string;
-  }
+  prompt: string;
 }
 
 export interface runPromptResponse {
