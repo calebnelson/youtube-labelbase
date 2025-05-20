@@ -1,17 +1,31 @@
 export type Video = {
   id: number;
-  url: string;
+  youtube_id: string;
+  title: string;
+  description: string;
+  video_metadata: any;
+  created_at: string;
+  updated_at: string | null;
+  user_id: number;
 }
 
-export type LLMPrompt = {
-  id: number;
-  prompt: string;
-  systemPrompt: string;
+export type Prompt = {
+  id: string;
+  video_id: number;
+  user_id: number | null;
+  system_prompt: string | null;
+  user_prompt: string;
+  output: any | null;
+  created_at: string;
+  updated_at: string | null;
 }
 
 export type LLMResponse = {
-  id: number;
-  video: Video;
-  prompt: LLMPrompt;
-  response: string;
+  content: string;
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  }
 }

@@ -47,4 +47,17 @@ def get_video(
     video = crud_video.get(db, id=video_id)
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
-    return video 
+    return video
+
+@router.get("/", response_model=List[video_schema.Video])
+def get_videos(
+    *,
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100
+) -> List[video_schema.Video]:
+    """
+    Get all videos.
+    """
+    videos = crud_video.get_multi(db, skip=skip, limit=limit)
+    return videos 

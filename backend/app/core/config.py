@@ -34,7 +34,8 @@ class Settings(BaseSettings):
         return f"postgresql://{values.get('POSTGRES_USER')}:{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_SERVER')}/{values.get('POSTGRES_DB')}"
     
     # LLM Configuration
-    GOOGLE_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
+    YOUTUBE_API_KEY: str = ""
     
     class Config:
         case_sensitive = True

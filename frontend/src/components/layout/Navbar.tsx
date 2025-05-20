@@ -12,14 +12,14 @@ export default function Navbar() {
               </Link>
             </div>
           </div>
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <Link
               href="/about"
               className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium"
             >
               About
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </nav>

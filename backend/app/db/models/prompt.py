@@ -8,6 +8,7 @@ class Prompt(Base):
 
     id = Column(String, primary_key=True, index=True)
     video_id = Column(Integer, ForeignKey("videos.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     system_prompt = Column(String)
     user_prompt = Column(String)
     output = Column(JSON)
@@ -16,3 +17,4 @@ class Prompt(Base):
 
     # Relationships
     video = relationship("Video", back_populates="prompts") 
+    user = relationship("User", back_populates="prompts") 

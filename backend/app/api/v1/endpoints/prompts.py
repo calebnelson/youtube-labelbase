@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from pydantic import BaseModel
 from app.api import deps
 from app.schemas import prompt as prompt_schema
-from app.services import llm_service
+from app.services import llm_service, youtube_service
 from app.crud import crud_prompt, crud_video
 from app.services.llm_service import run_prompt
 from app.db.models.video import Video
@@ -71,20 +71,35 @@ def run_prompt_endpoint(
   Run a prompt on a video and return the LLM response.
   """
   # Extract YouTube ID from URL
-  video_id = request.videoUrl.split("v=")[-1]
+  try:
+    video_id = youtube_service.extract_video_id(request.videoUrl)
+  except ValueError as e:
+    raise HTTPException(
+      status_code=400,
+      detail=f"Invalid YouTube URL: {str(e)}"
+    )
 
   # Create or get video
   video = db.query(Video).filter(Video.youtube_id == video_id).first()
   if not video:
-    video = Video(
-        youtube_id=video_id,
-        title="",  # TODO: Fetch from YouTube API
-        description="",  # TODO: Fetch from YouTube API
-        video_metadata={},  # TODO: Fetch from YouTube API
-        user_id=1  # TODO: Get from authenticated user
-    )
-    db.add(video)
-    db.flush()  # Flush to get the video ID
+    # Fetch video metadata from YouTube
+    try:
+      video_metadata = youtube_service.get_video_metadata(request.videoUrl)
+      
+      video = Video(
+          youtube_id=video_id,
+          title=video_metadata["title"],
+          description=video_metadata.get("description", ""),
+          video_metadata=video_metadata,
+          user_id=1  # TODO: Get from authenticated user
+      )
+      db.add(video)
+      db.flush()  # Flush to get the video ID
+    except Exception as e:
+      raise HTTPException(
+        status_code=400,
+        detail=f"Failed to fetch video metadata: {str(e)}"
+      )
 
   # Run the prompt
   output = llm_service.run_prompt(
@@ -106,4 +121,17 @@ def run_prompt_endpoint(
   return {
     "promptId": prompt.id,
     "output": output
-  } 
+  }
+
+@router.get("/", response_model=List[prompt_schema.Prompt])
+def get_prompts(
+    *,
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100
+) -> List[prompt_schema.Prompt]:
+    """
+    Get all prompts.
+    """
+    prompts = crud_prompt.get_multi(db, skip=skip, limit=limit)
+    return prompts 

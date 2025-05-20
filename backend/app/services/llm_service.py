@@ -11,7 +11,7 @@ def run_prompt(
     Run a prompt through the Gemini LLM.
     """
     try:
-      client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+      client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
       response = client.models.generate_content(
         model='models/gemini-2.0-flash',

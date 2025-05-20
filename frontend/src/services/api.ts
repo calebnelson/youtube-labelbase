@@ -1,4 +1,4 @@
-import { LLMResponse, LLMPrompt, Video } from '@/utils/types';
+import { LLMResponse, Prompt, Video } from '@/utils/types';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
@@ -11,7 +11,7 @@ const api = axios.create({
 });
 
 export interface getPromptsResponse {
-  prompts: LLMPrompt[];
+  prompts: Prompt[];
 }
 
 export interface getVideosResponse {
@@ -24,21 +24,42 @@ export interface runPromptRequest {
 }
 
 export interface runPromptResponse {
-  promptId: number;
+  promptId: string;
   output: LLMResponse;
 }
 
+export const runPrompt = async (data: runPromptRequest): Promise<runPromptResponse> => {
+  try {
+    const response = await api.post<runPromptResponse>('/api/prompts/run_prompt', data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to run prompt');
+    }
+    throw error;
+  }
+};
+
 export const getPrompts = async (): Promise<getPromptsResponse> => {
-  const response = await api.get<getPromptsResponse>('/api/prompts');
-  return response.data;
+  try {
+    const response = await api.get<Prompt[]>('/api/prompts');
+    return { prompts: response.data };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to fetch prompts');
+    }
+    throw error;
+  }
 };
 
 export const getVideos = async (): Promise<getVideosResponse> => {
-  const response = await api.get<getVideosResponse>('/api/videos');
-  return response.data;
-};
-
-export const runPrompt = async (data: runPromptRequest): Promise<runPromptResponse> => {
-  const response = await api.post<runPromptResponse>('/api/prompts/run_prompt', data);
-  return response.data;
+  try {
+    const response = await api.get<Video[]>('/api/videos');
+    return { videos: response.data };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.detail || 'Failed to fetch videos');
+    }
+    throw error;
+  }
 };

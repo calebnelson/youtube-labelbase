@@ -30,7 +30,7 @@ A FastAPI backend for analyzing YouTube videos using LLMs.
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=postgres
    POSTGRES_DB=youtube_labelbase
-   GOOGLE_API_KEY=your_google_api_key
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
 3. Initialize the database:

@@ -4,8 +4,10 @@ from datetime import datetime
 
 # Schema for database model
 class PromptBase(BaseModel):
-    video_id: str
-    prompt: str
+    video_id: int
+    user_id: Optional[int] = None
+    system_prompt: Optional[str] = None
+    user_prompt: str
     output: Optional[Dict[str, Any]] = None
 
 class PromptCreate(PromptBase):

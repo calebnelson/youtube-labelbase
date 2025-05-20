@@ -14,3 +14,4 @@ class User(Base):
 
   # Relationships
   videos = relationship("Video", back_populates="user", cascade="all, delete-orphan")
+  prompts = relationship("Prompt", back_populates="user", cascade="all, delete-orphan")
