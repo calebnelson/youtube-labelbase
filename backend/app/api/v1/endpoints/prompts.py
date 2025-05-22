@@ -9,13 +9,17 @@ from app.crud import crud_prompt, crud_video
 from app.services.llm_service import run_prompt
 from app.db.models.video import Video
 from app.db.models.prompt import Prompt
+from app.db.models.output import Output
 import uuid
+import time
+import json
 
 router = APIRouter()
 
 class RunPromptRequest(BaseModel):
     videoUrl: str
-    prompt: prompt_schema.PromptCreate
+    prompt: str
+    promptId: str | None = None
 
 @router.post("/", response_model=prompt_schema.Prompt)
 def create_prompt(
@@ -65,10 +69,11 @@ def get_prompt(
 def run_prompt_endpoint(
     *,
     db: Session = Depends(deps.get_db),
-    request: prompt_schema.RunPromptRequest
+    request: RunPromptRequest
 ) -> Dict[str, Any]:
   """
   Run a prompt on a video and return the LLM response.
+  If promptId is provided and there's an existing output for the video, return that instead.
   """
   # Extract YouTube ID from URL
   try:
@@ -101,21 +106,65 @@ def run_prompt_endpoint(
         detail=f"Failed to fetch video metadata: {str(e)}"
       )
 
-  # Run the prompt
+  # Check for existing output
+  existing_output = None
+  if request.promptId:
+    # Check by prompt ID
+    existing_output = db.query(Output).filter(
+      Output.prompt_id == request.promptId,
+      Output.video_id == video.id
+    ).first()
+  else:
+    # Check by prompt text
+    existing_prompt = db.query(Prompt).filter(
+      Prompt.user_prompt == request.prompt
+    ).first()
+    if existing_prompt:
+      existing_output = db.query(Output).filter(
+        Output.prompt_id == existing_prompt.id,
+        Output.video_id == video.id
+      ).first()
+  
+  if existing_output:
+    return {
+      "promptId": existing_output.prompt_id,
+      "output": json.loads(existing_output.llm_output)
+    }
+
+  # Get or create prompt
+  prompt = None
+  if request.promptId:
+    prompt = db.query(Prompt).filter(Prompt.id == request.promptId).first()
+    if not prompt:
+      raise HTTPException(status_code=404, detail="Prompt not found")
+  else:
+    # Create new prompt
+    prompt = Prompt(
+      id=str(uuid.uuid4()),
+      system_prompt="",  # TODO: Add system prompt if needed
+      user_prompt=request.prompt,
+      user_id=1  # TODO: Get from authenticated user
+    )
+    db.add(prompt)
+    db.flush()
+
+  # Run the prompt and measure time
+  start_time = time.time()
   output = llm_service.run_prompt(
     video_url=request.videoUrl,
     prompt=request.prompt
   )
+  time_taken = time.time() - start_time
 
-  # Create prompt record
-  prompt = Prompt(
-    id=str(uuid.uuid4()),  # Generate a unique ID
+  # Create output record
+  output_record = Output(
+    id=str(uuid.uuid4()),
     video_id=video.id,
-    system_prompt="",  # TODO: Add system prompt if needed
-    user_prompt=request.prompt,
-    output=output
+    prompt_id=prompt.id,
+    llm_output=json.dumps(output),  # Convert dict to JSON string
+    time_to_generate=time_taken
   )
-  db.add(prompt)
+  db.add(output_record)
   db.commit()
 
   return {
@@ -133,5 +182,5 @@ def get_prompts(
     """
     Get all prompts.
     """
-    prompts = crud_prompt.get_multi(db, skip=skip, limit=limit)
+    prompts = db.query(Prompt).offset(skip).limit(limit).all()
     return prompts 

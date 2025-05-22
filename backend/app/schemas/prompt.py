@@ -1,14 +1,23 @@
+from typing import Optional, List
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
 from datetime import datetime
 
-# Schema for database model
-class PromptBase(BaseModel):
+class OutputBase(BaseModel):
+    llm_output: str
+    run_date: datetime
+    time_to_generate: float
+
+class Output(OutputBase):
+    id: str
     video_id: int
-    user_id: Optional[int] = None
+    prompt_id: str
+
+    class Config:
+        from_attributes = True
+
+class PromptBase(BaseModel):
     system_prompt: Optional[str] = None
     user_prompt: str
-    output: Optional[Dict[str, Any]] = None
 
 class PromptCreate(PromptBase):
     pass
@@ -16,18 +25,18 @@ class PromptCreate(PromptBase):
 class PromptUpdate(PromptBase):
     pass
 
-class PromptInDBBase(PromptBase):
+class Prompt(PromptBase):
     id: str
+    user_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    outputs: List[Output] = []
 
     class Config:
         from_attributes = True
 
-class Prompt(PromptInDBBase):
-    pass
-
 # Schema for frontend request
 class RunPromptRequest(BaseModel):
     videoUrl: str
-    prompt: str 
+    prompt: str
+    promptId: str | None = None 

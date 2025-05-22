@@ -21,6 +21,7 @@ export interface getVideosResponse {
 export interface runPromptRequest {
   videoUrl: string;
   prompt: string;
+  promptId?: string;
 }
 
 export interface runPromptResponse {
@@ -45,6 +46,7 @@ export const getPrompts = async (): Promise<getPromptsResponse> => {
     const response = await api.get<Prompt[]>('/api/prompts');
     return { prompts: response.data };
   } catch (error) {
+    console.error('Error fetching prompts:', error);
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.detail || 'Failed to fetch prompts');
     }

@@ -14,8 +14,8 @@ python-jose = {extras = ["cryptography"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 google-genai = "*"
 psycopg2-binary = "*"
-alembic = "*"
 google-api-python-client = "*"
+alembic = "*"
 
 [dev-packages]
 pytest = "*"

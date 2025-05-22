@@ -30,6 +30,7 @@ export default function VideoInputForm() {
   const [promptMode, setPromptMode] = useState<InputMode>("new");
   const [existingVideos, setExistingVideos] = useState<Video[]>([]);
   const [existingPrompts, setExistingPrompts] = useState<Prompt[]>([]);
+  const [selectedPromptId, setSelectedPromptId] = useState<string | null>(null);
 
   const {
     register,
@@ -83,6 +84,7 @@ export default function VideoInputForm() {
       const response = await runPrompt({
         videoUrl: data.videoUrl,
         prompt: data.prompt,
+        promptId: selectedPromptId || undefined,
       });
       setResponse(response);
     } catch (error) {
@@ -112,6 +114,7 @@ export default function VideoInputForm() {
     console.log('Selected prompt:', selectedPrompt);
     if (selectedPrompt) {
       setValue("prompt", selectedPrompt.user_prompt);
+      setSelectedPromptId(promptId);
     }
   };
 
@@ -299,14 +302,37 @@ export default function VideoInputForm() {
 
       {response && (
         <div className="rounded-md bg-green-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
+          <div className="flex flex-col space-y-4">
+            <div>
               <h3 className="text-sm font-medium text-green-800">
                 Prompt Executed
               </h3>
               <div className="mt-2 text-sm text-green-700">
                 <p>Prompt ID: {response.promptId}</p>
-                <p>Output: {JSON.stringify(response.output, null, 2)}</p>
+              </div>
+            </div>
+            
+            {response.output.content && (
+              <div>
+                <h4 className="text-sm font-medium text-green-800 mb-2">Content:</h4>
+                <div className="bg-white p-4 rounded-md border border-green-200">
+                  <pre className="whitespace-pre-wrap text-sm">{response.output.content}</pre>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <h4 className="text-sm font-medium text-green-800 mb-2">Additional Information:</h4>
+              <div className="bg-white p-4 rounded-md border border-green-200">
+                <pre className="text-sm overflow-auto">
+                  {JSON.stringify(
+                    Object.fromEntries(
+                      Object.entries(response.output).filter(([key]) => key !== 'content')
+                    ),
+                    null,
+                    2
+                  )}
+                </pre>
               </div>
             </div>
           </div>
