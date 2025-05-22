@@ -37,7 +37,6 @@ export default function VideoInputForm() {
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<VideoInputFormData>({
     resolver: zodResolver(videoInputSchema),
   });
