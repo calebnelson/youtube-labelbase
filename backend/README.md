@@ -26,10 +26,7 @@ A FastAPI backend for analyzing YouTube videos using LLMs.
 
 2. Create a `.env` file in the backend directory with the following content:
    ```
-   POSTGRES_SERVER=localhost
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=postgres
-   POSTGRES_DB=youtube_labelbase
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/youtube_labelbase
    GEMINI_API_KEY=your_gemini_api_key
    ```
 
