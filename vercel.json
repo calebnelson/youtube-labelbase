@@ -10,8 +10,7 @@
       "use": "@vercel/python",
       "config": {
         "runtime": "python3.11",
-        "maxLambdaSize": "15mb",
-        "installCommand": "cd backend && ./generate_requirements.sh && pip install --no-cache-dir -r requirements.txt"
+        "maxLambdaSize": "15mb"
       }
     }
   ],
