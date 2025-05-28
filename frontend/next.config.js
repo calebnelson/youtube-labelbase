@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   async rewrites() {
     return [
       {
@@ -13,4 +12,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig; 
